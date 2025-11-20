@@ -1,0 +1,57 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+*.egg
+build/
+dist/
+
+# Installer logs
+env.bak/
+*.log
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# dotenv
+.env
+
+# VS Code
+.vscode/
+
+# Local static files
+static/images/loading/
+static/images/characters/faces/outlined/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+#
+key.txt

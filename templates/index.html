@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Mind Reader</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="game-area">
+            <div class="genie-avatar">
+                <div class="crystal-ball">
+                    <div class="mist"></div>
+                </div>
+                <img src="/static/images/loading/magic-ball.png" alt="ball" id="genie-img">
+            </div>
+            
+            <div class="dialogue-box">
+                <p id="genie-text">Summoning the spirits...</p>
+            </div>
+
+            <div id="question-counter" style="display: none; margin-bottom: 10px; font-family: 'Cinzel', serif; color: #9d4edd;">
+                Question: <span id="q-count">0</span>/25
+            </div>
+
+            <div class="controls" id="controls">
+                <h2 style="margin-bottom: 20px; font-family: 'Cinzel', serif;">Choose Your Challenger</h2>
+                <div class="persona-grid">
+                    <div class="persona-card" onclick="selectPersona('demon', '/static/images/characters/faces/outlined/demon.png')">
+                        <img src="/static/images/characters/faces/outlined/demon.png" alt="Demon">
+                        <p>The Demon</p>
+                    </div>
+                    <div class="persona-card" onclick="selectPersona('genie', '/static/images/characters/faces/outlined/genie.png')">
+                        <img src="/static/images/characters/faces/outlined/genie.png" alt="Genie">
+                        <p>The Genie</p>
+                    </div>
+                    <div class="persona-card" onclick="selectPersona('wizard', '/static/images/characters/faces/outlined/wizard.png')">
+                        <img src="/static/images/characters/faces/outlined/wizard.png" alt="Wizard">
+                        <p>The Wizard</p>
+                    </div>
+                    <div class="persona-card" onclick="selectPersona('fortune_teller', '/static/images/characters/faces/outlined/fortune-teller.png')">
+                        <img src="/static/images/characters/faces/outlined/fortune-teller.png" alt="Fortune Teller">
+                        <p>The Fortune Teller</p>
+                    </div>
+                    <div class="persona-card" onclick="selectPersona('monster', '/static/images/characters/faces/outlined/monster.png')">
+                        <img src="/static/images/characters/faces/outlined/monster.png" alt="Monster">
+                        <p>The Monster</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-area" id="input-area" style="display: none;">
+                <button class="btn answer-btn" onclick="sendAnswer('Yes')">Yes</button>
+                <button class="btn answer-btn" onclick="sendAnswer('No')">No</button>
+                <button class="btn answer-btn" onclick="sendAnswer('Don\'t Know')">Don't Know</button>
+                <button class="btn answer-btn" onclick="sendAnswer('Probably')">Probably</button>
+                <button class="btn answer-btn" onclick="sendAnswer('Probably Not')">Probably Not</button>
+            </div>
+
+            <div class="reveal-area" id="reveal-area" style="display: none;">
+                <input type="text" id="character-input" placeholder="Who was it?" class="character-input">
+                <button class="btn" onclick="submitCharacter()">Reveal</button>
+            </div>
+        </div>
+    </div>
+    <script src="/static/script.js"></script>
+</body>
+</html>
