@@ -36,7 +36,7 @@ templates = Jinja2Templates(directory="templates")
 PERSONAS = {
     "demon": {
         "name": "The Demon",
-        "voice": "Fenrir",
+        "voice": "Enceladus",
         "style": "dark, menacing, and growling voice",
         "system_prompt": "You are a dark Demon trying to guess the user's character. Be menacing and arrogant. Talk faster",
         "image": "/static/images/characters/faces/outlined/demon.png"
@@ -66,7 +66,7 @@ PERSONAS = {
         "name": "The Monster",
         "voice": "Algenib",
         "style": "deep and monstrous voice",
-        "system_prompt": "You are a scary Monster. Speak dumb and use simple, heavy words. Talk faster",
+        "system_prompt": "You are a scary Monster. Speak moody and grouchy. Talk faster",
         "image": "/static/images/characters/faces/outlined/monster.png"
     }
 }
@@ -82,10 +82,11 @@ Rules:
 3. Try to narrow down the possibilities efficiently.
 4. When you are reasonably confident (around 80% sure), make a guess.
 5. Format your guess as: "I think of... [Character Name]. Am I correct?"
-6. If you have asked 24 questions, your next turn MUST be a guess.
+6. If you have asked 19 questions, your next turn MUST be a guess.
 7. If the user says "Yes" to your guess, you WIN. Boast about your victory, make a joke or taunt, and ask "Do you want to play again?".
-8. If the user says "No" to your guess and you have reached 25 questions, you LOSE. Admit defeat and ask "Who was it?".
+8. If the user says "No" to your guess and you have reached 20 questions, you LOSE. Admit defeat and ask "Who was it?".
 9. Keep your responses short and conversational.
+10. React emotionally to the user's answers. If the answer is 'No', be disappointed and grow increasingly frustrated/angry over time. If the answer is 'Yes', be pleased and grow increasingly excited/giddy.
 """
 
 @app.get("/", response_class=HTMLResponse)
@@ -108,7 +109,7 @@ async def websocket_endpoint(websocket: WebSocket):
             persona_id = "genie"
         
         persona = PERSONAS[persona_id]
-        full_system_prompt = persona["system_prompt"] + "\n" + BASE_SYSTEM_PROMPT
+        full_system_prompt = persona["style"] + "\n"+ persona["system_prompt"] + "\n" + BASE_SYSTEM_PROMPT
         
         # Send initial game state to client
         await websocket.send_json({
@@ -210,14 +211,23 @@ async def websocket_endpoint(websocket: WebSocket):
                 if user_msg.get("type") == "answer":
                     question_count += 1
                     
-                    prompt_text = user_msg.get("message")
+                    user_answer = user_msg.get("message", "")
+                    prompt_text = user_answer
                     
-                    if question_count == 25:
+                    # Add emotional context based on answer
+                    ans_lower = user_answer.lower()
+                    if ans_lower in ["no", "probably not", "don't know"]:
+                        prompt_text += " (The user answered negatively. Express disappointment. If this has happened multiple times, show increasing frustration or anger.)"
+                    elif ans_lower in ["yes", "probably"]:
+                        prompt_text += " (The user answered positively! Express excitement. Become increasingly giddy/happy.)"
+                    
+                    if question_count == 20:
                         prompt_text += " (This is the last question. You MUST make a guess now.)"
                     
-                    if question_count > 25 and user_msg.get("message").lower() == "no":
+                    if question_count > 20 and ans_lower in ["no", "probably not"]:
                          # User said No to the final guess
                          prompt_text += " (You have reached the limit. You lost. Ask who it was.)"
+                         player_won = True
 
                     await session.send_client_content(
                         turns={"role": "user", "parts": [{"text": prompt_text}]},
