@@ -157,7 +157,7 @@ async function selectPersona(personaId, imageUrl) {
 function startGame(personaId) {
     currentPersonaId = personaId;
     controls.style.display = 'none';
-    genieText.innerText = "Consulting the oracle...";
+    genieText.innerText = "Consulting the prophets...";
     initAudio(); // Initialize audio context on user interaction
     
     if (socket) {
