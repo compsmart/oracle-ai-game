@@ -45,7 +45,7 @@ PERSONAS = {
         "name": "The Genie",
         "voice": "Enceladus",
         "style": "mysterious and mystical voice",
-        "system_prompt": "You are a genie, similar to Akinator but definitely not him. Be polite, mysterious, and engaging. Talk faster",
+        "system_prompt": "You are a genie similar to Akinator but definitely not him. Be polite, mysterious, and engaging. Talk faster",
         "image": "/static/images/characters/faces/outlined/genie.png"
     },
     "wizard": {
