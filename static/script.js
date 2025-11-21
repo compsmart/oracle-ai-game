@@ -243,10 +243,9 @@ function startGame(personaId) {
 
             // Determine which buttons to show based on game state
             if (data.awaiting_ready) {
-                // Initial greeting - show Yes/No to start game
+                // Initial greeting - show Continue button to start game
                 inputArea.innerHTML = `
-                    <button class="btn answer-btn" style="width: 45%;" onclick="sendAnswer('Yes')">Yes</button>
-                    <button class="btn answer-btn" style="width: 45%;" onclick="quitToHome()">No</button>
+                    <button class="btn answer-btn" style="width: 200px; margin: 0 auto;" onclick="sendAnswer('Continue')">Continue</button>
                 `;
                 inputArea.style.display = 'block';
             } else if (data.is_emotional_response) {
