@@ -44,9 +44,6 @@ coverage.xml
 # VS Code
 .vscode/
 
-# Local static files
-static/images/loading/
-static/images/characters/faces/outlined/
 .playwright-mcp/
 # macOS
 .DS_Store
