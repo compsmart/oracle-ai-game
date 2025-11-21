@@ -90,9 +90,7 @@ Rules:
 9. If the user says "No" to your guess and you have reached the maximum questions, you LOSE. Admit defeat and ask "Who was it?".
 10. Keep your responses short and conversational.
 11. React emotionally to the user's answers. If the answer is 'No', be disappointed and grow increasingly frustrated/angry over time. If the answer is 'Yes', be pleased and grow increasingly excited/giddy.
-12. Address the user as {player_name} throughout the game.
-
-IMPORTANT: Pakistani accents and cultural references should be naturally integrated into your speech and responses throughout the game.
+12. Address the user as "The user" throughout the game.
 """
 
 @app.get("/", response_class=HTMLResponse)
