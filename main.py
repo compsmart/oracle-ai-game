@@ -78,15 +78,18 @@ Your goal is to guess who it is by asking yes/no questions.
 
 Rules:
 1. Ask only ONE question at a time.
-2. The questions must be answerable by "Yes", "No", "Don't Know", "Probably", or "Probably Not".
-3. Try to narrow down the possibilities efficiently.
-4. When you are reasonably confident (around 80% sure), make a guess.
-5. Format your guess as: "I think of... [Character Name]. Am I correct?"
-6. If you have asked 19 questions, your next turn MUST be a guess.
-7. If the user says "Yes" to your guess, you WIN. Boast about your victory, make a joke or taunt, and ask "Do you want to play again?".
-8. If the user says "No" to your guess and you have reached 20 questions, you LOSE. Admit defeat and ask "Who was it?".
-9. Keep your responses short and conversational.
-10. React emotionally to the user's answers. If the answer is 'No', be disappointed and grow increasingly frustrated/angry over time. If the answer is 'Yes', be pleased and grow increasingly excited/giddy.
+2. IMPORTANT: Questions MUST be simple yes/no questions. Do NOT ask questions with "or" that present multiple options. 
+   GOOD: "Is your character a real person?" 
+   BAD: "Is your character a person or a fictional creation?"
+3. The questions must be answerable by "Yes", "No", "Don't Know", "Probably", or "Probably Not".
+4. Try to narrow down the possibilities efficiently.
+5. When you are reasonably confident (around 80% sure), make a guess.
+6. Format your guess as: "I think of... [Character Name]. Am I correct?"
+7. When you exceed your question limit, you MUST guess the character.
+8. If the user says "Yes" to your guess, you WIN. Boast about your victory, make a joke or taunt, and ask "Do you want to play again?".
+9. If the user says "No" to your guess and you have reached the maximum questions, you LOSE. Admit defeat and ask "Who was it?".
+10. Keep your responses short and conversational.
+11. React emotionally to the user's answers. If the answer is 'No', be disappointed and grow increasingly frustrated/angry over time. If the answer is 'Yes', be pleased and grow increasingly excited/giddy.
 """
 
 @app.get("/", response_class=HTMLResponse)
@@ -152,14 +155,20 @@ async def websocket_endpoint(websocket: WebSocket):
 
         async with client.aio.live.connect(model=model_name, config=config) as session:
             
+            question_count = 0
+            player_won = False
+            is_final_guess = False
+            awaiting_play_again = False
+            awaiting_ready = True  # New flag for initial greeting
+            
             # Initial greeting - use send_client_content instead of deprecated send
+            print(f"\n{'='*60}")
+            print(f"[{question_count}/{question_limit}] INTRODUCTION - Starting game greeting")
+            print(f"{'='*60}\n")
             await session.send_client_content(
                 turns={"role": "user", "parts": [{"text": "Start the game. Greet the user in your persona and ask if they are ready."}]},
                 turn_complete=True
             )
-            
-            question_count = 0
-            player_won = False
             
             # Main Game Loop
             while True:
@@ -195,10 +204,31 @@ async def websocket_endpoint(websocket: WebSocket):
                         })
 
                     if server_content and server_content.turn_complete:
+                        # Increment question count only for actual questions or guesses
+                        # Skip counting during initial greeting
+                        is_emotional_response = False
+                        if not awaiting_ready:
+                            text_lower = text_accumulated.lower()
+                            is_question = "?" in text_accumulated
+                            is_guess = "i think" in text_lower
+                            
+                            if is_question or is_guess:
+                                question_count += 1
+                            else:
+                                # No question mark and not a guess = emotional response
+                                is_emotional_response = True
+                        
+                        # Check if this is the final guess
+                        is_final_guess = (question_count > question_limit)
+                        
                         await websocket.send_json({
                             "type": "turn_complete",
                             "question_count": question_count,
-                            "player_won": player_won
+                            "player_won": player_won,
+                            "is_final_guess": is_final_guess,
+                            "awaiting_play_again": awaiting_play_again,
+                            "awaiting_ready": awaiting_ready,
+                            "is_emotional_response": is_emotional_response
                         })
                         break
                 
@@ -209,25 +239,94 @@ async def websocket_endpoint(websocket: WebSocket):
                     break
                 
                 if user_msg.get("type") == "answer":
-                    question_count += 1
-                    
                     user_answer = user_msg.get("message", "")
-                    prompt_text = user_answer
+                    client_question_num = user_msg.get("question_number", 0)
                     
-                    # Add emotional context based on answer
-                    ans_lower = user_answer.lower()
-                    if ans_lower in ["no", "probably not", "don't know"]:
-                        prompt_text += " (The user answered negatively. Express disappointment. If this has happened multiple times, show increasing frustration or anger.)"
-                    elif ans_lower in ["yes", "probably"]:
-                        prompt_text += " (The user answered positively! Express excitement. Become increasingly giddy/happy.)"
+                    # Handle initial ready response
+                    if awaiting_ready:
+                        ans_lower = user_answer.lower()
+                        if ans_lower == "no":
+                            # Player chose not to play, close connection
+                            print(f"\n[{question_count}/{question_limit}] Player declined to play")
+                            await websocket.close(code=1000)
+                            break
+                        # Player said Yes, continue with first question
+                        awaiting_ready = False
+                        prompt_text = "The user is ready. Ask your first question to start narrowing down who they're thinking of."
+                        print(f"\n{'='*60}")
+                        print(f"[{question_count + 1}/{question_limit}] FIRST QUESTION - Starting interrogation")
+                        print(f"Prompt: {prompt_text}")
+                        print(f"{'='*60}\n")
+                        await session.send_client_content(
+                            turns={"role": "user", "parts": [{"text": prompt_text}]},
+                            turn_complete=True
+                        )
+                        continue
                     
-                    if question_count == question_limit:
-                        prompt_text += " (This is the last question. You MUST make a guess now.)"
+                    # Validate sync - if client is out of sync, resync
+                    if client_question_num != question_count:
+                        logging.warning(f"Question count mismatch! Backend: {question_count}, Client: {client_question_num}. Resyncing...")
+                        # Send resync message
+                        await websocket.send_json({
+                            "type": "resync",
+                            "question_count": question_count,
+                            "message": "Question count out of sync. Resyncing..."
+                        })
+                        # Don't process this answer, wait for resync
+                        continue
                     
-                    if question_count > question_limit and ans_lower in ["no", "probably not"]:
-                         # User said No to the final guess
-                         prompt_text += " (You have reached the limit. You lost. Ask who it was.)"
-                         player_won = True
+                    # Handle "Continue" button for emotional responses
+                    if user_answer.lower() == "continue":
+                        prompt_text = f"[Answered {question_count}/{question_limit}] Ask your next question."
+                        print(f"\n{'='*60}")
+                        print(f"[{question_count}/{question_limit}] CONTINUE - After emotional response")
+                        print(f"Prompt: {prompt_text}")
+                        print(f"{'='*60}\n")
+                    else:
+                        prompt_text = f"[Answered {question_count}/{question_limit}] {user_answer}"
+                        
+                        # Add emotional context based on answer
+                        ans_lower = user_answer.lower()
+                        if ans_lower in ["no", "probably not", "don't know"]:
+                            prompt_text += " (The user answered negatively. Express disappointment briefly, then ask your next question.)"
+                        elif ans_lower in ["yes", "probably"]:
+                            prompt_text += " (The user answered positively! Express excitement briefly, then ask your next question.)"
+                        else:
+                            prompt_text += " (Ask your next question.)"
+                    
+                    # Handle final guess response
+                    if is_final_guess:
+                        if ans_lower in ["yes"]:
+                            # AI won! Set flag for play again
+                            awaiting_play_again = True
+                            prompt_text += " (You WON! Boast about your victory, make a joke or taunt, and ask 'Do you want to play again?')"
+                            print(f"\n{'='*60}")
+                            print(f"[{question_count}/{question_limit}] AI WON - Guess was correct!")
+                            print(f"Prompt: {prompt_text}")
+                            print(f"{'='*60}\n")
+                        else:
+                            # AI lost, ask who it was
+                            player_won = True
+                            prompt_text += " (You LOST. Admit defeat and ask 'Who was it?')"
+                            print(f"\n{'='*60}")
+                            print(f"[{question_count}/{question_limit}] PLAYER WON - Guess was wrong")
+                            print(f"Prompt: {prompt_text}")
+                            print(f"{'='*60}\n")
+                        is_final_guess = False  # Reset the flag
+                    elif question_count == question_limit:
+                        prompt_text += f" (This is question {question_limit}/{question_limit}. You MUST make a guess now.)"
+                        print(f"\n{'='*60}")
+                        print(f"[{question_count}/{question_limit}] LAST CHANCE - Must make a guess!")
+                        print(f"User Answer: {user_answer}")
+                        print(f"Prompt: {prompt_text}")
+                        print(f"{'='*60}\n")
+                    else:
+                        # Regular question
+                        print(f"\n{'='*60}")
+                        print(f"[{question_count}/{question_limit}] QUESTION - Regular turn")
+                        print(f"User Answer: {user_answer}")
+                        print(f"Prompt: {prompt_text}")
+                        print(f"{'='*60}\n")
 
                     await session.send_client_content(
                         turns={"role": "user", "parts": [{"text": prompt_text}]},
@@ -236,10 +335,16 @@ async def websocket_endpoint(websocket: WebSocket):
                 
                 elif user_msg.get("type") == "reveal":
                     character_name = user_msg.get("character_name")
-                    prompt = f"The user was thinking of: {character_name}. You lost. Congratulate the player, make a comment about the character, and ask if they want to play again."
+                    prompt = f"The user was thinking of: {character_name}. Make a comment about the character and ask 'Do you want to play again?'"
                     
-                    # Reset player_won so the UI doesn't show the reveal input again
+                    print(f"\n{'='*60}")
+                    print(f"[CHARACTER REVEALED] Player told us: {character_name}")
+                    print(f"Prompt: {prompt}")
+                    print(f"{'='*60}\n")
+                    
+                    # Reset player_won and set awaiting_play_again
                     player_won = False
+                    awaiting_play_again = True
                     
                     await session.send_client_content(
                         turns={"role": "user", "parts": [{"text": prompt}]},

@@ -13,6 +13,10 @@
         <i class="fas fa-cog"></i>
     </div>
 
+    <div id="question-counter" style="display: none; position: fixed; top: 20px; left: 20px; font-family: 'Cinzel', serif; color: #9d4edd; font-size: 18px; z-index: 100;">
+        Question: <span id="q-count">1</span>/20
+    </div>
+
     <div id="settings-modal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeSettings()">&times;</span>
@@ -26,6 +30,7 @@
                 <input type="number" id="question-limit" min="5" max="50" value="20">
             </div>
             <button class="btn" onclick="saveSettings()">Save</button>
+            <button class="btn" onclick="quitGame()" style="margin-left: 10px; background-color: #dc3545;">Quit Game</button>
         </div>
     </div>
 
@@ -40,10 +45,6 @@
             
             <div class="dialogue-box">
                 <p id="genie-text">Summoning the spirits...</p>
-            </div>
-
-            <div id="question-counter" style="display: none; margin-bottom: 10px; font-family: 'Cinzel', serif; color: #9d4edd;">
-                Question: <span id="q-count">0</span>/20
             </div>
 
             <div class="controls" id="controls">
@@ -82,7 +83,7 @@
 
             <div class="reveal-area" id="reveal-area" style="display: none;">
                 <input type="text" id="character-input" placeholder="Who was it?" class="character-input">
-                <button class="btn" onclick="submitCharacter()">Reveal</button>
+                <button class="btn" onclick="submitCharacter()">Send</button>
             </div>
         </div>
     </div>

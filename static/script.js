@@ -5,7 +5,7 @@ const controls = document.getElementById('controls');
 const inputArea = document.getElementById('input-area');
 const revealArea = document.getElementById('reveal-area');
 const questionCounter = document.getElementById('question-counter');
-const qCountSpan = document.getElementById('q-count');
+let qCountSpan = document.getElementById('q-count'); // Use 'let' so it can be reassigned
 const characterInput = document.getElementById('character-input');
 
 // Settings Elements
@@ -43,6 +43,27 @@ function saveSettings() {
     }
     localStorage.setItem('questionLimit', limit);
     closeSettings();
+}
+
+function quitGame() {
+    // Close websocket if active
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.close();
+    }
+    
+    // Reset the game state
+    closeSettings();
+    location.reload();
+}
+
+function quitToHome() {
+    // Close websocket if active
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.close();
+    }
+    
+    // Go back to home screen
+    location.reload();
 }
 
 // Close modal if clicked outside
@@ -154,8 +175,11 @@ function startGame(personaId) {
         const playerName = localStorage.getItem('playerName') || "Traveler";
         const questionLimit = parseInt(localStorage.getItem('questionLimit')) || 20;
         
-        // Update UI counter max
+        // Update UI counter max - start at 0, will update when game starts
         document.getElementById('question-counter').innerHTML = `Question: <span id="q-count">0</span>/${questionLimit}`;
+        
+        // Re-get the reference to q-count span since innerHTML replaced it
+        qCountSpan = document.getElementById('q-count');
 
         socket.send(JSON.stringify({
             type: "start_game",
@@ -167,13 +191,17 @@ function startGame(personaId) {
 
     socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
+        if(data.type!=='audio') {
+            console.log("Received:", data);
+        }
         
         if (data.type === "game_started") {
             if (data.image) {
                 genieImg.src = data.image;
             }
             inputArea.style.display = 'none'; // Wait for first greeting
-            questionCounter.style.display = 'block';
+            revealArea.style.display = 'none'; // Hide reveal area on restart
+            questionCounter.style.display = data.question_count > 0 ? 'block' : 'none'; // Show counter only if count > 0
             qCountSpan.innerText = data.question_count;
             currentText = ""; // Reset text
             
@@ -201,28 +229,67 @@ function startGame(personaId) {
             document.querySelector('.genie-avatar').classList.remove('thinking');
             qCountSpan.innerText = data.question_count;
             
-            const messageLower = currentText.toLowerCase();
+            // Get the question limit
+            const questionLimit = parseInt(localStorage.getItem('questionLimit')) || 20;
+            
+            // Hide question counter if question_count is 0 or exceeds max questions
+            if (data.question_count === 0 || data.question_count > questionLimit) {
+                console.log("Hiding question counter", data.question_count);
+                questionCounter.style.display = 'none';
+            } else {
+                console.log("Showing question counter");
+                questionCounter.style.display = 'block';
+            }
 
-            if (data.player_won) {
-                revealArea.style.display = 'block';
-                inputArea.style.display = 'none';
-            } else if (messageLower.includes("play again")) {
-                // Show Play Again buttons
+            // Determine which buttons to show based on game state
+            if (data.awaiting_ready) {
+                // Initial greeting - show Yes/No to start game
                 inputArea.innerHTML = `
-                    <button class="btn answer-btn" onclick="startGame(currentPersonaId)">Yes</button>
-                    <button class="btn answer-btn" onclick="location.reload()">No</button>
+                    <button class="btn answer-btn" style="width: 45%;" onclick="sendAnswer('Yes')">Yes</button>
+                    <button class="btn answer-btn" style="width: 45%;" onclick="quitToHome()">No</button>
                 `;
                 inputArea.style.display = 'block';
-            } else if (messageLower.includes("who was it") || messageLower.includes("who is it")) {
-                // Show Reveal Input
+            } else if (data.is_emotional_response) {
+                // AI gave an emotional response without a question - show Continue button
+                inputArea.innerHTML = `
+                    <button class="btn answer-btn" style="width: 200px; margin: 0 auto;" onclick="sendAnswer('Continue')">Continue</button>
+                `;
+                inputArea.style.display = 'block';
+            } else if (data.player_won) {
+                // Player won (AI couldn't guess) - show reveal input
                 revealArea.style.display = 'block';
                 inputArea.style.display = 'none';
-            } else if (currentText.includes("Am I correct?") || currentText.includes("I guess")) {
-                 // AI thinks it won, keep buttons for confirmation
-                 inputArea.style.display = 'block';
+            } else if (data.awaiting_play_again) {
+                // AI is asking if they want to play again - show Yes/No
+                inputArea.innerHTML = `
+                    <button class="btn answer-btn" style="width: 45%;" onclick="startGame('${currentPersonaId}')">Yes</button>
+                    <button class="btn answer-btn" style="width: 45%;" onclick="quitToHome()">No</button>
+                `;
+                inputArea.style.display = 'block';
+            } else if (data.is_final_guess) {
+                // AI made the final guess - show Yes/No only
+                inputArea.innerHTML = `
+                    <button class="btn answer-btn" style="width: 45%;" onclick="sendAnswer('Yes')">Yes</button>
+                    <button class="btn answer-btn" style="width: 45%;" onclick="sendAnswer('No')">No</button>
+                `;
+                inputArea.style.display = 'block';
             } else {
+                // Regular question - show all 5 options
+                inputArea.innerHTML = `
+                    <button class="btn answer-btn" onclick="sendAnswer('Yes')">Yes</button>
+                    <button class="btn answer-btn" onclick="sendAnswer('No')">No</button>
+                    <button class="btn answer-btn" onclick="sendAnswer('Don\\'t Know')">Don't Know</button>
+                    <button class="btn answer-btn" onclick="sendAnswer('Probably')">Probably</button>
+                    <button class="btn answer-btn" onclick="sendAnswer('Probably Not')">Probably Not</button>
+                `;
                 inputArea.style.display = 'block';
             }
+        } else if (data.type === "resync") {
+            // Backend detected out of sync, update UI
+            console.warn(data.message);
+            qCountSpan.innerText = data.question_count;
+            genieText.innerText = "Synchronizing...";
+            inputArea.style.display = 'block';
         }
     };
 
@@ -257,9 +324,13 @@ function sendAnswer(answer) {
         nextStartTime = audioContext.currentTime;
     }
 
+    // Get current question count from UI
+    const currentQuestionCount = parseInt(qCountSpan.innerText) || 0;
+
     socket.send(JSON.stringify({
         type: "answer",
-        message: answer
+        message: answer,
+        question_number: currentQuestionCount
     }));
 }
 
@@ -278,4 +349,7 @@ function submitCharacter() {
         type: "reveal",
         character_name: name
     }));
+    
+    // Clear the input field after submission
+    characterInput.value = "";
 }
