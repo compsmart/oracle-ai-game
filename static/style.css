@@ -311,7 +311,7 @@ body::after {
 
 .persona-card {
     background: rgba(0, 0, 0, 0.6);
-    border: 2px solid #5a189a;
+    border: 2px solid #c77dff;
     border-radius: 15px;
     padding: 15px 10px;
     cursor: pointer;
@@ -324,6 +324,59 @@ body::after {
     align-items: center;
     justify-content: center;
     gap: 10px;
+    position: relative;
+    box-shadow: 0 0 15px rgba(199, 125, 255, 0.6), 0 0 25px rgba(199, 125, 255, 0.3);
+}
+
+.persona-card:hover {
+    transform: scale(1.1);
+    border-color: #e0aaff;
+    box-shadow: 0 0 20px rgba(224, 170, 255, 0.8), 0 0 30px rgba(224, 170, 255, 0.4);
+}
+
+.persona-card.locked {
+    border-color: #555;
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.persona-card.locked:hover {
+    transform: none;
+    border-color: #555;
+    box-shadow: none;
+}
+
+.persona-card.beaten {
+    border-color: #3d0066;
+    box-shadow: none;
+}
+
+.persona-card.beaten:hover {
+    border-color: #7b2cbf;
+    box-shadow: 0 0 15px rgba(123, 44, 191, 0.4);
+    transform: scale(1.1);
+}
+
+.lock-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.lock-overlay i {
+    font-size: 32px;
+    color: #888;
+    filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.8));
 }
 
 .persona-card:hover {
@@ -410,19 +463,64 @@ body::after {
     width: 100%;
     height: 100%;
     background-color: rgba(0,0,0,0.8);
+    overflow-y: auto;
 }
 
 .modal-content {
     background: radial-gradient(circle at center, #2d1b4e 0%, #1a0b2e 100%);
-    margin: 15% auto;
-    padding: 30px;
+    margin: 3% auto;
+    padding: 20px 30px;
     border: 2px solid #9d4edd;
     border-radius: 15px;
     width: 80%;
-    max-width: 400px;
+    max-width: 450px;
     text-align: center;
     box-shadow: 0 0 20px rgba(157, 78, 221, 0.5);
     position: relative;
+}
+
+.locked-message {
+    max-width: 450px;
+}
+
+.lock-icon-large {
+    font-size: 64px;
+    color: #c77dff;
+    margin-bottom: 20px;
+    animation: pulse 2s infinite;
+    filter: drop-shadow(0 0 15px rgba(199, 125, 255, 0.8));
+}
+
+.unlock-requirements {
+    margin: 25px 0;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.requirement {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Cinzel', serif;
+    font-size: 1.1em;
+    color: #aaa;
+    transition: all 0.3s ease;
+}
+
+.requirement i {
+    font-size: 1.3em;
+    color: #555;
+}
+
+.requirement.completed {
+    color: #c77dff;
+}
+
+.requirement.completed i {
+    color: #00ff88;
+    filter: drop-shadow(0 0 5px rgba(0, 255, 136, 0.6));
 }
 
 .close {

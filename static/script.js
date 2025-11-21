@@ -13,6 +13,68 @@ const settingsModal = document.getElementById('settings-modal');
 const playerNameInput = document.getElementById('player-name');
 const questionLimitInput = document.getElementById('question-limit');
 
+// Character Progress Tracking
+const UNLOCKABLE_CHARACTERS = ['demon', 'monster'];
+const STARTING_CHARACTERS = ['genie', 'wizard', 'fortune_teller'];
+
+function getBeatenCharacters() {
+    const beaten = localStorage.getItem('beatenCharacters');
+    return beaten ? JSON.parse(beaten) : [];
+}
+
+function markCharacterBeaten(personaId) {
+    const beaten = getBeatenCharacters();
+    if (!beaten.includes(personaId)) {
+        beaten.push(personaId);
+        localStorage.setItem('beatenCharacters', JSON.stringify(beaten));
+    }
+    updateCharacterLocks();
+}
+
+function areUnlockableCharactersAvailable() {
+    const beaten = getBeatenCharacters();
+    // Check if all starting characters have been beaten
+    return STARTING_CHARACTERS.every(char => beaten.includes(char));
+}
+
+function isCharacterLocked(personaId) {
+    if (!UNLOCKABLE_CHARACTERS.includes(personaId)) {
+        return false; // Starting characters are never locked
+    }
+    return !areUnlockableCharactersAvailable();
+}
+
+function updateCharacterLocks() {
+    const beaten = getBeatenCharacters();
+    const unlocked = areUnlockableCharactersAvailable();
+    
+    // Update all persona cards
+    document.querySelectorAll('.persona-card').forEach(card => {
+        const personaId = card.getAttribute('data-persona-id');
+        
+        // Remove existing states
+        card.classList.remove('locked', 'beaten');
+        const existingLock = card.querySelector('.lock-overlay');
+        if (existingLock) {
+            existingLock.remove();
+        }
+        
+        // Check if locked
+        if (isCharacterLocked(personaId)) {
+            card.classList.add('locked');
+            
+            // Add lock overlay
+            const lockOverlay = document.createElement('div');
+            lockOverlay.className = 'lock-overlay';
+            lockOverlay.innerHTML = '<i class="fas fa-lock"></i>';
+            card.appendChild(lockOverlay);
+        } else if (beaten.includes(personaId)) {
+            // Mark as beaten
+            card.classList.add('beaten');
+        }
+    });
+}
+
 // Load Settings on Start
 window.onload = () => {
     const savedName = localStorage.getItem('playerName');
@@ -27,6 +89,9 @@ window.onload = () => {
     
     // Start rotating loading phrases
     startLoadingPhraseRotation();
+    
+    // Initialize character locks
+    updateCharacterLocks();
 };
 
 // Loading phrase rotation
@@ -118,11 +183,18 @@ function quitToHome() {
 
 // Close modal if clicked outside
 window.onclick = function(event) {
+    const settingsModal = document.getElementById('settings-modal');
+    const lockedModal = document.getElementById('locked-modal');
+    
     if (event.target == settingsModal) {
         // Only close if name is set
         if (localStorage.getItem('playerName')) {
             closeSettings();
         }
+    }
+    
+    if (event.target == lockedModal) {
+        closeLockedModal();
     }
 }
 
@@ -198,11 +270,38 @@ function playPcmChunk(base64Audio) {
 }
 
 async function selectPersona(personaId, imageUrl) {
+    // Check if character is locked
+    if (isCharacterLocked(personaId)) {
+        showLockedModal();
+        return;
+    }
+    
     stopLoadingPhraseRotation(); // Stop rotation when persona is selected
     if (imageUrl) {
         genieImg.src = imageUrl;
     }
     startGame(personaId);
+}
+
+function showLockedModal() {
+    const modal = document.getElementById('locked-modal');
+    const beaten = getBeatenCharacters();
+    
+    // Update requirement checkmarks
+    STARTING_CHARACTERS.forEach(char => {
+        const reqElement = document.getElementById(`req-${char}`);
+        if (beaten.includes(char)) {
+            reqElement.classList.add('completed');
+        } else {
+            reqElement.classList.remove('completed');
+        }
+    });
+    
+    modal.style.display = 'block';
+}
+
+function closeLockedModal() {
+    document.getElementById('locked-modal').style.display = 'none';
 }
 
 function startGame(personaId) {
@@ -311,9 +410,11 @@ function startGame(personaId) {
                 inputArea.style.display = 'none';
             } else if (data.awaiting_play_again) {
                 // AI is asking if they want to play again - show Yes/No
+                // Check if this was a victory (AI guessed correctly)
+                // We need to track if AI won in the previous turn
                 inputArea.innerHTML = `
-                    <button class="btn answer-btn" style="width: 45%;" onclick="startGame('${currentPersonaId}')">Yes</button>
-                    <button class="btn answer-btn" style="width: 45%;" onclick="quitToHome()">No</button>
+                    <button class="btn answer-btn" style="width: 45%;" onclick="handlePlayAgain(true)">Yes</button>
+                    <button class="btn answer-btn" style="width: 45%;" onclick="handlePlayAgain(false)">No</button>
                 `;
                 inputArea.style.display = 'block';
             } else if (data.is_final_guess) {
@@ -377,11 +478,26 @@ function sendAnswer(answer) {
     // Get current question count from UI
     const currentQuestionCount = parseInt(qCountSpan.innerText) || 0;
 
+    // Check if this is a "Yes" answer to the AI's final guess (AI wins)
+    const isYesToGuess = answer.toLowerCase() === 'yes' && currentQuestionCount > 0;
+    if (isYesToGuess) {
+        // Player lost, AI guessed correctly - mark character as beaten
+        markCharacterBeaten(currentPersonaId);
+    }
+
     socket.send(JSON.stringify({
         type: "answer",
         message: answer,
         question_number: currentQuestionCount
     }));
+}
+
+function handlePlayAgain(playAgain) {
+    if (playAgain) {
+        startGame(currentPersonaId);
+    } else {
+        quitToHome();
+    }
 }
 
 function submitCharacter() {
