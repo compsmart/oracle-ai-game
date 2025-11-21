@@ -9,6 +9,25 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+    <!-- Floating Particles -->
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
     <div class="settings-icon" onclick="openSettings()">
         <i class="fas fa-cog"></i>
     </div>
@@ -34,6 +53,33 @@
         </div>
     </div>
 
+    <div id="locked-modal" class="modal">
+        <div class="modal-content locked-message">
+            <span class="close" onclick="closeLockedModal()">&times;</span>
+            <div class="lock-icon-large">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h2>Character Locked</h2>
+            <p>This powerful character awaits your mastery!</p>
+            <p>Defeat all three starting characters to unlock:</p>
+            <div class="unlock-requirements">
+                <div class="requirement" id="req-genie">
+                    <i class="fas fa-check-circle"></i>
+                    <span>The Genie</span>
+                </div>
+                <div class="requirement" id="req-wizard">
+                    <i class="fas fa-check-circle"></i>
+                    <span>The Wizard</span>
+                </div>
+                <div class="requirement" id="req-fortune_teller">
+                    <i class="fas fa-check-circle"></i>
+                    <span>The Fortune Teller</span>
+                </div>
+            </div>
+            <button class="btn" onclick="closeLockedModal()">Back to Selection</button>
+        </div>
+    </div>
+
     <div class="container">
         <div class="game-area">
             <div class="genie-avatar">
@@ -50,23 +96,23 @@
             <div class="controls" id="controls">
                 <h2 style="margin-bottom: 20px; font-family: 'Cinzel', serif;">Choose Your Challenger</h2>
                 <div class="persona-grid">
-                    <div class="persona-card" onclick="selectPersona('abdul', '/static/images/characters/faces/abdul.png')">
+                    <div class="persona-card" data-persona-id="abdul" onclick="selectPersona('abdul', '/static/images/characters/faces/abdul.png')">
                         <img src="/static/images/characters/faces/abdul.png" alt="Abdul">
                         <p>Abdul</p>
                     </div>
-                    <div class="persona-card" onclick="selectPersona('ahmed', '/static/images/characters/faces/ahmed.png')">
+                    <div class="persona-card" data-persona-id="ahmed" onclick="selectPersona('ahmed', '/static/images/characters/faces/ahmed.png')">
                         <img src="/static/images/characters/faces/ahmed.png" alt="Ahmed">
                         <p>Ahmed</p>
                     </div>
-                    <div class="persona-card" onclick="selectPersona('aisha', '/static/images/characters/faces/aisha.png')">
+                    <div class="persona-card" data-persona-id="aisha" onclick="selectPersona('aisha', '/static/images/characters/faces/aisha.png')">
                         <img src="/static/images/characters/faces/aisha.png" alt="Aisha">
                         <p>Aisha</p>
                     </div>
-                    <div class="persona-card" onclick="selectPersona('amir', '/static/images/characters/faces/amir.png')">
+                    <div class="persona-card" data-persona-id="amir" onclick="selectPersona('amir', '/static/images/characters/faces/amir.png')">
                         <img src="/static/images/characters/faces/amir.png" alt="Amir">
                         <p>Amir</p>
                     </div>
-                    <div class="persona-card" onclick="selectPersona('ibrahim', '/static/images/characters/faces/ibrahim.png')">
+                    <div class="persona-card" data-persona-id="ibrahim" onclick="selectPersona('ibrahim', '/static/images/characters/faces/ibrahim.png')">
                         <img src="/static/images/characters/faces/ibrahim.png" alt="Ibrahim">
                         <p>Ibrahim</p>
                     </div>

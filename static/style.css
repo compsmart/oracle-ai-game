@@ -4,11 +4,204 @@ body {
     background: radial-gradient(circle at center, #4a2c1a 0%, #1a0f08 100%);
     color: #fff;
     font-family: 'Lato', sans-serif;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* Mystical Background Effects */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(ellipse at 20% 30%, rgba(157, 78, 221, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 70%, rgba(123, 44, 191, 0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(93, 24, 157, 0.08) 0%, transparent 70%);
+    animation: mysticalGlow 15s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Smoke particles */
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 120%;
+    height: 120%;
+    background-image: 
+        radial-gradient(2px 2px at 20% 30%, rgba(255, 255, 255, 0.15), transparent),
+        radial-gradient(2px 2px at 60% 70%, rgba(255, 255, 255, 0.1), transparent),
+        radial-gradient(3px 3px at 50% 50%, rgba(157, 78, 221, 0.1), transparent),
+        radial-gradient(2px 2px at 80% 10%, rgba(255, 255, 255, 0.12), transparent),
+        radial-gradient(2px 2px at 90% 60%, rgba(157, 78, 221, 0.08), transparent),
+        radial-gradient(3px 3px at 33% 85%, rgba(255, 255, 255, 0.1), transparent),
+        radial-gradient(2px 2px at 75% 25%, rgba(157, 78, 221, 0.12), transparent);
+    background-size: 200% 200%, 150% 150%, 250% 250%, 180% 180%, 220% 220%, 190% 190%, 210% 210%;
+    background-position: 0% 0%, 100% 0%, 50% 50%, 20% 80%, 80% 20%, 40% 60%, 70% 30%;
+    animation: smokeFloat 60s ease-in-out infinite;
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Floating Particles */
+.particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: radial-gradient(circle, rgba(157, 78, 221, 0.8), rgba(224, 170, 255, 0.3));
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(157, 78, 221, 0.6);
+    animation: floatParticle 20s infinite ease-in-out;
+    opacity: 0;
+}
+
+/* Create varied particle animations */
+.particle:nth-child(1) {
+    left: 10%;
+    animation-duration: 18s;
+    animation-delay: 0s;
+}
+
+.particle:nth-child(2) {
+    left: 20%;
+    animation-duration: 22s;
+    animation-delay: 2s;
+    width: 3px;
+    height: 3px;
+}
+
+.particle:nth-child(3) {
+    left: 30%;
+    animation-duration: 25s;
+    animation-delay: 4s;
+}
+
+.particle:nth-child(4) {
+    left: 40%;
+    animation-duration: 20s;
+    animation-delay: 1s;
+    width: 5px;
+    height: 5px;
+}
+
+.particle:nth-child(5) {
+    left: 50%;
+    animation-duration: 23s;
+    animation-delay: 3s;
+}
+
+.particle:nth-child(6) {
+    left: 60%;
+    animation-duration: 19s;
+    animation-delay: 5s;
+    width: 3px;
+    height: 3px;
+}
+
+.particle:nth-child(7) {
+    left: 70%;
+    animation-duration: 21s;
+    animation-delay: 0.5s;
+}
+
+.particle:nth-child(8) {
+    left: 80%;
+    animation-duration: 24s;
+    animation-delay: 2.5s;
+    width: 4px;
+    height: 4px;
+}
+
+.particle:nth-child(9) {
+    left: 90%;
+    animation-duration: 20s;
+    animation-delay: 4.5s;
+}
+
+.particle:nth-child(10) {
+    left: 15%;
+    animation-duration: 26s;
+    animation-delay: 1.5s;
+    width: 3px;
+    height: 3px;
+}
+
+.particle:nth-child(11) {
+    left: 25%;
+    animation-duration: 22s;
+    animation-delay: 3.5s;
+}
+
+.particle:nth-child(12) {
+    left: 45%;
+    animation-duration: 19s;
+    animation-delay: 2s;
+    width: 5px;
+    height: 5px;
+}
+
+.particle:nth-child(13) {
+    left: 55%;
+    animation-duration: 21s;
+    animation-delay: 4s;
+}
+
+.particle:nth-child(14) {
+    left: 75%;
+    animation-duration: 23s;
+    animation-delay: 1s;
+    width: 3px;
+    height: 3px;
+}
+
+.particle:nth-child(15) {
+    left: 85%;
+    animation-duration: 20s;
+    animation-delay: 5s;
+}
+
+@keyframes floatParticle {
+    0% {
+        transform: translateY(100vh) translateX(0) scale(0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.6;
+        transform: translateY(90vh) translateX(20px) scale(1);
+    }
+    50% {
+        opacity: 0.8;
+        transform: translateY(50vh) translateX(-30px) scale(1.2);
+    }
+    90% {
+        opacity: 0.4;
+        transform: translateY(10vh) translateX(20px) scale(0.8);
+    }
+    100% {
+        transform: translateY(-10vh) translateX(0) scale(0);
+        opacity: 0;
+    }
 }
 
 .container {
@@ -16,17 +209,24 @@ body {
     width: 100%;
     max-width: 800px;
     position: relative;
+    padding: 15px;
+    box-sizing: border-box;
+    z-index: 1; /* Ensure content is above background effects */
+}
+
+.game-area {
+    margin-top: 50px;
 }
 
 .genie-avatar {
     position: relative;
-    margin-bottom: 30px;
+    margin-bottom: 15px;
     animation: float 6s ease-in-out infinite;
 }
 
 #genie-img {
-    width: 200px;
-    height: 200px;
+    width: 140px;
+    height: 140px;
     filter: drop-shadow(0 0 20px #d4a574);
     transition: transform 0.3s ease;
 }
@@ -36,8 +236,8 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 300px;
-    height: 300px;
+    width: 200px;
+    height: 200px;
     border-radius: 50%;
     background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1), rgba(212, 165, 116, 0.2) 60%, rgba(0,0,0,0.8) 100%);
     box-shadow: 0 0 50px rgba(212, 165, 116, 0.5);
@@ -58,9 +258,9 @@ body {
     background: rgba(0, 0, 0, 0.7);
     border: 2px solid #d4a574;
     border-radius: 15px;
-    padding: 20px;
-    margin: 20px;
-    min-height: 80px;
+    padding: 15px;
+    margin: 15px 0;
+    min-height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -69,19 +269,20 @@ body {
 
 #genie-text {
     font-family: 'Cinzel', serif;
-    font-size: 1.5em;
+    font-size: 1.2em;
     margin: 0;
     text-shadow: 0 0 5px #d4a574;
     white-space: pre-wrap; /* Preserve spaces and wrapping */
+    transition: opacity 0.3s ease-in-out;
 }
 
 .btn {
     background: linear-gradient(45deg, #a0522d, #d4a574);
     border: none;
-    padding: 15px 30px;
+    padding: 12px 15px;
     color: white;
     font-family: 'Cinzel', serif;
-    font-size: 1.1em;
+    font-size: 1em;
     border-radius: 25px;
     cursor: pointer;
     margin: 5px;
@@ -104,7 +305,7 @@ body {
 .persona-grid {
     display: flex;
     justify-content: center;
-    gap: 20px;
+    gap: 10px;
     flex-wrap: wrap;
 }
 
@@ -112,10 +313,70 @@ body {
     background: rgba(0, 0, 0, 0.6);
     border: 2px solid #a0522d;
     border-radius: 15px;
-    padding: 15px;
+    padding: 15px 10px;
     cursor: pointer;
     transition: all 0.3s ease;
-    width: 100px;
+    width: 80px;
+    min-height: 110px;
+    /* Flexbox for consistent alignment */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+    box-shadow: 0 0 15px rgba(199, 125, 255, 0.6), 0 0 25px rgba(199, 125, 255, 0.3);
+}
+
+.persona-card:hover {
+    transform: scale(1.1);
+    border-color: #e0aaff;
+    box-shadow: 0 0 20px rgba(224, 170, 255, 0.8), 0 0 30px rgba(224, 170, 255, 0.4);
+}
+
+.persona-card.locked {
+    border-color: #555;
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.persona-card.locked:hover {
+    transform: none;
+    border-color: #555;
+    box-shadow: none;
+}
+
+.persona-card.beaten {
+    border-color: #3d0066;
+    box-shadow: none;
+}
+
+.persona-card.beaten:hover {
+    border-color: #7b2cbf;
+    box-shadow: 0 0 15px rgba(123, 44, 191, 0.4);
+    transform: scale(1.1);
+}
+
+.lock-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.lock-overlay i {
+    font-size: 32px;
+    color: #888;
+    filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.8));
 }
 
 .persona-card:hover {
@@ -125,15 +386,20 @@ body {
 }
 
 .persona-card img {
-    width: 60px;
-    height: 60px;
+    width: 40px;
+    height: 40px;
     filter: drop-shadow(0 0 5px #fff);
+    display: block;
+    flex-shrink: 0; /* Prevent image from shrinking */
 }
 
 .persona-card p {
-    margin-top: 10px;
+    margin: 0;
     font-family: 'Cinzel', serif;
     font-size: 0.9em;
+    text-align: center;
+    line-height: 1.2;
+    word-break: break-word; /* Handle long text gracefully */
 }
 
 .character-input {
@@ -148,16 +414,39 @@ body {
     margin-right: 10px;
 }
 
+/* Input Area & Buttons Layout */
+.input-area {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    width: 100%;
+    margin-top: 20px;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
+.answer-btn {
+    flex: 1 1 140px;
+    margin: 5px;
+    min-width: 120px;
+    max-width: 220px;
+    white-space: nowrap;
+}
+
 /* Settings */
 .settings-icon {
     position: absolute;
-    top: 20px;
-    right: 20px;
-    font-size: 24px;
+    top: 15px;
+    right: 15px;
+    font-size: 20px;
     cursor: pointer;
     color: #d4a574;
     z-index: 100;
     transition: transform 0.3s ease;
+    background: rgba(0,0,0,0.5);
+    padding: 8px;
+    border-radius: 50%;
 }
 
 .settings-icon:hover {
@@ -174,19 +463,64 @@ body {
     width: 100%;
     height: 100%;
     background-color: rgba(0,0,0,0.8);
+    overflow-y: auto;
 }
 
 .modal-content {
     background: radial-gradient(circle at center, #5e3a1f 0%, #2d1f14 100%);
-    margin: 15% auto;
-    padding: 30px;
+    margin: 3% auto;
+    padding: 20px 30px;
     border: 2px solid #d4a574;
     border-radius: 15px;
     width: 80%;
-    max-width: 400px;
+    max-width: 450px;
     text-align: center;
     box-shadow: 0 0 20px rgba(212, 165, 116, 0.5);
     position: relative;
+}
+
+.locked-message {
+    max-width: 450px;
+}
+
+.lock-icon-large {
+    font-size: 64px;
+    color: #c77dff;
+    margin-bottom: 20px;
+    animation: pulse 2s infinite;
+    filter: drop-shadow(0 0 15px rgba(199, 125, 255, 0.8));
+}
+
+.unlock-requirements {
+    margin: 25px 0;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.requirement {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Cinzel', serif;
+    font-size: 1.1em;
+    color: #aaa;
+    transition: all 0.3s ease;
+}
+
+.requirement i {
+    font-size: 1.3em;
+    color: #555;
+}
+
+.requirement.completed {
+    color: #c77dff;
+}
+
+.requirement.completed i {
+    color: #00ff88;
+    filter: drop-shadow(0 0 5px rgba(0, 255, 136, 0.6));
 }
 
 .close {
@@ -240,6 +574,40 @@ body {
     100% { transform: rotate(360deg); }
 }
 
+@keyframes mysticalGlow {
+    0% { 
+        opacity: 0.5;
+        transform: scale(1) rotate(0deg);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(1.1) rotate(180deg);
+    }
+    100% { 
+        opacity: 0.5;
+        transform: scale(1) rotate(360deg);
+    }
+}
+
+@keyframes smokeFloat {
+    0%, 100% {
+        background-position: 0% 0%, 100% 0%, 50% 50%, 20% 80%, 80% 20%, 40% 60%, 70% 30%;
+        opacity: 0.3;
+    }
+    25% {
+        background-position: 30% 20%, 70% 30%, 60% 40%, 40% 70%, 60% 40%, 50% 50%, 80% 40%;
+        opacity: 0.5;
+    }
+    50% {
+        background-position: 50% 40%, 50% 50%, 70% 30%, 60% 60%, 40% 60%, 60% 40%, 90% 50%;
+        opacity: 0.4;
+    }
+    75% {
+        background-position: 70% 30%, 30% 70%, 40% 60%, 80% 50%, 20% 80%, 70% 30%, 60% 60%;
+        opacity: 0.5;
+    }
+}
+
 .speaking {
     animation: pulse 0.5s infinite alternate;
 }
@@ -286,4 +654,163 @@ body {
 .letter-fade {
     position: relative;
     animation: fadeInLetter 0.5s ease forwards;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    body {
+        align-items: flex-start; /* Allow scrolling on small screens */
+        padding: 20px 0;
+    }
+
+    .container {
+        padding: 10px;
+        width: 100%;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .genie-avatar {
+        margin-bottom: 10px;
+        transform: scale(0.9);
+    }
+
+    #genie-img {
+        width: 120px;
+        height: 120px;
+    }
+
+    .crystal-ball {
+        width: 180px;
+        height: 180px;
+    }
+
+    .dialogue-box {
+        padding: 15px;
+        margin: 10px 0;
+        min-height: 60px;
+        width: 90%;
+    }
+
+    #genie-text {
+        font-size: 1.1em;
+    }
+
+    .persona-grid {
+        gap: 8px;
+    }
+
+    .persona-card {
+        width: 70px;
+        min-height: 100px;
+        padding: 12px 8px;
+        gap: 8px;
+    }
+
+    .persona-card img {
+        width: 35px;
+        height: 35px;
+    }
+
+    .persona-card p {
+        font-size: 0.8em;
+    }
+
+    .btn {
+        padding: 12px 15px;
+        font-size: 1em;
+    }
+
+    /* Optimized Button Layout for Mobile */
+    .input-area {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 15px;
+        padding: 0;
+        width: 100%;
+    }
+    
+    .answer-btn {
+        width: 100%;
+        margin: 20px 0;
+        padding: 15px 5px;
+        font-size: 0.9em;
+        min-width: 0; /* Override desktop min-width */
+        max-width: none; /* Override desktop max-width */
+        white-space: normal; /* Allow text wrap if needed */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Reorder buttons for better ergonomics:
+       1. Yes
+       2. No
+       3. Don't Know
+       4. Probably
+       5. Probably Not
+    */
+    
+    /* Target specific buttons by order in HTML */
+    .answer-btn:nth-child(1) { order: 1; } /* Yes */
+    .answer-btn:nth-child(2) { order: 2; } /* No */
+    .answer-btn:nth-child(4) { order: 3; } /* Probably */
+    .answer-btn:nth-child(5) { order: 4; } /* Probably Not */
+    .answer-btn:nth-child(3) { 
+        order: 5; 
+        grid-column: span 2; /* Make "Don't Know" full width at bottom */
+        background: linear-gradient(45deg, #4a148c, #7b1fa2); /* Slightly different color */
+    }
+
+    /* Settings & Counter adjustments */
+    .settings-icon {
+        top: 10px;
+        right: 10px;
+        font-size: 18px;
+        background: rgba(0,0,0,0.6);
+        padding: 10px;
+        border-radius: 50%;
+    }
+
+    #question-counter {
+        top: 10px;
+        left: 10px;
+        font-size: 14px;
+        background: rgba(0,0,0,0.6);
+        padding: 8px 12px;
+        border-radius: 20px;
+    }
+
+    .reveal-area {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        gap: 10px;
+    }
+
+    .character-input {
+        width: 100%;
+        margin: 0;
+        box-sizing: border-box;
+    }
+
+    .reveal-area .btn {
+        width: 100%;
+        margin: 0;
+    }
+}
+
+@media (max-height: 600px) and (orientation: landscape) {
+    .genie-avatar {
+        transform: scale(0.7);
+        margin-bottom: 5px;
+    }
+    
+    .dialogue-box {
+        margin: 5px 0;
+        padding: 10px;
+    }
 }

@@ -90,6 +90,7 @@ Rules:
 9. If the user says "No" to your guess and you have reached the maximum questions, you LOSE. Admit defeat and ask "Who was it?".
 10. Keep your responses short and conversational.
 11. React emotionally to the user's answers. If the answer is 'No', be disappointed and grow increasingly frustrated/angry over time. If the answer is 'Yes', be pleased and grow increasingly excited/giddy.
+12. Address the user as {player_name} throughout the game.
 
 IMPORTANT: Pakistani accents and cultural references should be naturally integrated into your speech and responses throughout the game.
 """
@@ -110,8 +111,13 @@ async def websocket_endpoint(websocket: WebSocket):
             return
 
         persona_id = data.get("persona_id", "genie")
-        player_name = data.get("player_name", "Traveler")
+        raw_player_name = data.get("player_name", "Traveler")
         question_limit = data.get("question_count_limit", 20)
+
+        # Clean player name: letters only, max 12 characters
+        player_name = "".join(filter(str.isalpha, raw_player_name))[:12]
+        if not player_name:  # If name becomes empty after cleaning, use default
+            player_name = "Traveler"
 
         if persona_id not in PERSONAS:
             persona_id = "genie"
@@ -165,10 +171,10 @@ async def websocket_endpoint(websocket: WebSocket):
             
             # Initial greeting - use send_client_content instead of deprecated send
             print(f"\n{'='*60}")
-            print(f"[{question_count}/{question_limit}] INTRODUCTION - Starting game greeting")
+            print(f"[{question_count}/{question_limit}] INTRODUCTION - Starting game greeting {player_name}")
             print(f"{'='*60}\n")
             await session.send_client_content(
-                turns={"role": "user", "parts": [{"text": "Start the game. Greet the user in your persona and ask if they are ready."}]},
+                turns={"role": "user", "parts": [{"text": f"Start the game. Greet {player_name} in your persona, check they have thought of a character and ask if they are ready."}]},
                 turn_complete=True
             )
             
