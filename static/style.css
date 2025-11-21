@@ -72,6 +72,7 @@ body {
     font-size: 1.5em;
     margin: 0;
     text-shadow: 0 0 5px #9d4edd;
+    white-space: pre-wrap; /* Preserve spaces and wrapping */
 }
 
 .btn {
@@ -147,9 +148,86 @@ body {
     margin-right: 10px;
 }
 
-.character-input:focus {
-    outline: none;
-    box-shadow: 0 0 10px #9d4edd;
+/* Settings */
+.settings-icon {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #9d4edd;
+    z-index: 100;
+    transition: transform 0.3s ease;
+}
+
+.settings-icon:hover {
+    transform: rotate(90deg);
+    color: #e0aaff;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 200;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.8);
+}
+
+.modal-content {
+    background: radial-gradient(circle at center, #2d1b4e 0%, #1a0b2e 100%);
+    margin: 15% auto;
+    padding: 30px;
+    border: 2px solid #9d4edd;
+    border-radius: 15px;
+    width: 80%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(157, 78, 221, 0.5);
+    position: relative;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute;
+    right: 15px;
+    top: 5px;
+}
+
+.close:hover,
+.close:focus {
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-family: 'Cinzel', serif;
+    color: #e0aaff;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #9d4edd;
+    background: rgba(0, 0, 0, 0.3);
+    color: white;
+    font-family: 'Lato', sans-serif;
+    box-sizing: border-box; /* Fix padding issue */
 }
 
 @keyframes float {
@@ -192,4 +270,20 @@ body {
 @keyframes pulse-glow {
     from { box-shadow: 0 0 50px rgba(157, 78, 221, 0.5); }
     to { box-shadow: 0 0 80px rgba(157, 78, 221, 0.9), 0 0 30px #fff; }
+}
+
+@keyframes fadeInLetter {
+    from {
+        opacity: 0;
+        left: 10px;
+    }
+    to {
+        opacity: 1;
+        left: 0;
+    }
+}
+
+.letter-fade {
+    position: relative;
+    animation: fadeInLetter 0.5s ease forwards;
 }

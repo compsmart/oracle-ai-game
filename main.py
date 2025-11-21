@@ -105,16 +105,25 @@ async def websocket_endpoint(websocket: WebSocket):
             return
 
         persona_id = data.get("persona_id", "genie")
+        player_name = data.get("player_name", "Traveler")
+        question_limit = data.get("question_count_limit", 20)
+
         if persona_id not in PERSONAS:
             persona_id = "genie"
         
         persona = PERSONAS[persona_id]
-        full_system_prompt = persona["style"] + "\n"+ persona["system_prompt"] + "\n" + BASE_SYSTEM_PROMPT
+        
+        # Inject player name and limit into system prompt
+        customized_prompt = BASE_SYSTEM_PROMPT.replace("The user", f"{player_name}")
+        customized_prompt = customized_prompt.replace("25 questions", f"{question_limit} questions")
+        customized_prompt = customized_prompt.replace("24 questions", f"{question_limit - 1} questions")
+        
+        full_system_prompt = f"You are talking to {player_name}. {persona['system_prompt']}\n{customized_prompt}"
         
         # Send initial game state to client
         await websocket.send_json({
             "type": "game_started",
-            "session_id": "live-session", # Session ID is less relevant in WS but kept for compatibility
+            "session_id": "live-session", 
             "image": persona["image"],
             "question_count": 0
         })
@@ -156,52 +165,43 @@ async def websocket_endpoint(websocket: WebSocket):
             while True:
                 # Receive response from Gemini (Streamed)
                 text_accumulated = ""
-                audio_chunks = []
                 
                 async for response in session.receive():
                     if response.data is not None:
-                        # Audio data received
-                        audio_chunks.append(response.data)
+                        # Audio data received (PCM)
+                        audio_b64 = base64.b64encode(response.data).decode('utf-8')
+                        await websocket.send_json({
+                            "type": "audio",
+                            "audio": audio_b64
+                        })
                     
+                    text_chunk = ""
                     # Get transcription if available
                     if response.server_content and response.server_content.output_transcription:
-                        text_accumulated += response.server_content.output_transcription.text
+                        text_chunk += response.server_content.output_transcription.text
                     
                     # Also check model_turn for text parts
                     server_content = response.server_content
                     if server_content and server_content.model_turn:
                         for part in server_content.model_turn.parts:
                             if part.text:
-                                text_accumulated += part.text
+                                text_chunk += part.text
                     
+                    if text_chunk:
+                        text_accumulated += text_chunk
+                        await websocket.send_json({
+                            "type": "text",
+                            "text": text_chunk
+                        })
+
                     if server_content and server_content.turn_complete:
+                        await websocket.send_json({
+                            "type": "turn_complete",
+                            "question_count": question_count,
+                            "player_won": player_won
+                        })
                         break
                 
-                # Process accumulated audio
-                audio_b64 = None
-                if audio_chunks:
-                    # Combine all PCM chunks
-                    pcm_data = b"".join(audio_chunks)
-                    
-                    # Convert PCM to WAV
-                    with io.BytesIO() as wav_buffer:
-                        with wave.open(wav_buffer, "wb") as wf:
-                            wf.setnchannels(1)
-                            wf.setsampwidth(2)
-                            wf.setframerate(24000)
-                            wf.writeframes(pcm_data)
-                        wav_data = wav_buffer.getvalue()
-                    audio_b64 = base64.b64encode(wav_data).decode('utf-8')
-
-                # Send response to client
-                await websocket.send_json({
-                    "type": "response",
-                    "message": text_accumulated,
-                    "audio": audio_b64,
-                    "question_count": question_count,
-                    "player_won": player_won
-                })
-
                 # Wait for user input
                 try:
                     user_msg = await websocket.receive_json()
@@ -221,10 +221,10 @@ async def websocket_endpoint(websocket: WebSocket):
                     elif ans_lower in ["yes", "probably"]:
                         prompt_text += " (The user answered positively! Express excitement. Become increasingly giddy/happy.)"
                     
-                    if question_count == 20:
+                    if question_count == question_limit:
                         prompt_text += " (This is the last question. You MUST make a guess now.)"
                     
-                    if question_count > 20 and ans_lower in ["no", "probably not"]:
+                    if question_count > question_limit and ans_lower in ["no", "probably not"]:
                          # User said No to the final guess
                          prompt_text += " (You have reached the limit. You lost. Ask who it was.)"
                          player_won = True
@@ -237,6 +237,10 @@ async def websocket_endpoint(websocket: WebSocket):
                 elif user_msg.get("type") == "reveal":
                     character_name = user_msg.get("character_name")
                     prompt = f"The user was thinking of: {character_name}. You lost. Congratulate the player, make a comment about the character, and ask if they want to play again."
+                    
+                    # Reset player_won so the UI doesn't show the reveal input again
+                    player_won = False
+                    
                     await session.send_client_content(
                         turns={"role": "user", "parts": [{"text": prompt}]},
                         turn_complete=True
