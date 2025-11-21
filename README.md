@@ -2,6 +2,8 @@
 
 A mystical, AI-powered guessing game that attempts to read your mind! Inspired by Akinator, this application uses Google's Gemini AI to ask questions and guess the character you are thinking of. It features an engaging UI and high-quality Text-to-Speech (TTS) to bring the Genie to life.
 
+![Game Screenshot](Screenshot.png)
+
 ## Features
 
 *   **AI-Powered Logic**: Uses `gemini-2.5-flash` to generate intelligent questions and narrow down possibilities.
