@@ -1,15 +1,23 @@
 # AI Mind Reader (Akinator Clone)
 
-A mystical, AI-powered guessing game that attempts to read your mind! Inspired by Akinator, this application uses Google's Gemini AI to ask questions and guess the character you are thinking of. It features an engaging UI and high-quality Text-to-Speech (TTS) to bring the Genie to life.
+A mystical, AI-powered guessing game that attempts to read your mind! Inspired by Akinator, this application uses Google's Gemini AI with real-time voice and text streaming to create an immersive, interactive experience. Choose from multiple mystical personas, each with their own unique voice and personality, as they try to guess the character you're thinking of.
 
 ![Game Screenshot](Screenshot.png)
 
 ## Features
 
-*   **AI-Powered Logic**: Uses `gemini-2.5-flash` to generate intelligent questions and narrow down possibilities.
-*   **Voice Interaction**: The Genie speaks to you using `gemini-2.5-flash-preview-tts` with a custom voice ("Puck").
+*   **Real-Time Voice Streaming**: The AI speaks to you using Gemini's native audio streaming with natural-sounding voices - no delay, no waiting!
+*   **Live Text Streaming**: Watch the AI's responses appear character-by-character as they think and speak.
+*   **Multiple Personas**: Choose from 5 unique characters, each with distinct personalities and voices:
+    *   **The Demon** - Dark, menacing, and arrogant (Enceladus voice)
+    *   **The Genie** - Mysterious and mystical (Enceladus voice)
+    *   **The Wizard** - Wise and scholarly (Orus voice)
+    *   **The Fortune Teller** - Enigmatic and spiritual (Aoede voice)
+    *   **The Monster** - Moody and grouchy (Algenib voice)
+*   **Emotional AI Responses**: The AI reacts emotionally to your answers - getting excited when you say "Yes" and frustrated when you say "No".
+*   **Smart Question Logic**: Uses `gemini-2.5-flash-native-audio-preview` to generate intelligent yes/no questions.
+*   **Customizable Game Settings**: Set your name and adjust the question limit (5-50 questions).
 *   **Immersive UI**: Dark, mystical theme with floating animations, glowing effects, and a crystal ball.
-*   **Real-time Interaction**: Fast responses and seamless game flow.
 
 ## Prerequisites
 
@@ -49,11 +57,15 @@ A mystical, AI-powered guessing game that attempts to read your mind! Inspired b
 
 ## How to Play
 
-1.  Click **"Start Game"** to summon the Genie.
-2.  Think of a character (real or fictional).
-3.  The Genie will ask you a series of Yes/No questions.
-4.  Answer truthfully using the buttons provided.
-5.  Watch (and listen) as the Genie attempts to guess your character!
+1.  **Choose Your Settings**: Click the gear icon to set your name and preferred number of questions (default: 20).
+2.  **Select a Persona**: Choose from The Demon, Genie, Wizard, Fortune Teller, or Monster.
+3.  **Think of a Character**: Pick any real or fictional character in your mind.
+4.  **Answer Questions**: The AI will ask yes/no questions - answer using the buttons:
+    *   **Yes** / **No** - Definitive answers
+    *   **Probably** / **Probably Not** - When you're unsure
+    *   **Don't Know** - When the question doesn't apply
+5.  **Experience the Magic**: Listen to the AI speak with streaming audio and watch their personality shine through!
+6.  **The Finale**: The AI will make a guess - were they right?
 
 ## Project Structure
 
@@ -66,6 +78,7 @@ A mystical, AI-powered guessing game that attempts to read your mind! Inspired b
 
 ## Technologies Used
 
-*   **Backend**: Python, FastAPI, Uvicorn
-*   **AI**: Google Gemini API (Generative AI & TTS)
-*   **Frontend**: HTML5, CSS3, JavaScript
+*   **Backend**: Python, FastAPI, Uvicorn, WebSockets
+*   **AI**: Google Gemini API (`gemini-2.5-flash-native-audio-preview`) with Live API for real-time streaming
+*   **Audio**: Native PCM audio streaming with multiple prebuilt voices
+*   **Frontend**: HTML5, CSS3, JavaScript (Web Audio API for real-time playback)
