@@ -249,7 +249,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 if user_msg.get("type") == "ping":
                     await websocket.send_json({"type": "pong"})
                     continue
-
+                
                 if user_msg.get("type") == "answer":
                     user_answer = user_msg.get("message", "")
                     client_question_num = user_msg.get("question_number", 0)
