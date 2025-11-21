@@ -161,6 +161,7 @@ function saveSettings() {
 }
 
 function quitGame() {
+    if (reconnectTimeout) clearTimeout(reconnectTimeout);
     // Close websocket if active
     if (socket && socket.readyState === WebSocket.OPEN) {
         socket.close();
@@ -172,6 +173,7 @@ function quitGame() {
 }
 
 function quitToHome() {
+    if (reconnectTimeout) clearTimeout(reconnectTimeout);
     // Close websocket if active
     if (socket && socket.readyState === WebSocket.OPEN) {
         socket.close();
@@ -202,6 +204,29 @@ let currentText = "";
 let textQueue = [];
 let isProcessingQueue = false;
 let currentPersonaId = null;
+
+// Connection Management
+let heartbeatInterval = null;
+let reconnectTimeout = null;
+let reconnectAttempts = 0;
+const MAX_RECONNECT_ATTEMPTS = 5;
+
+function startHeartbeat() {
+    stopHeartbeat();
+    // Send ping every 20 seconds to prevent 30s timeout
+    heartbeatInterval = setInterval(() => {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({ type: "ping" }));
+        }
+    }, 20000);
+}
+
+function stopHeartbeat() {
+    if (heartbeatInterval) {
+        clearInterval(heartbeatInterval);
+        heartbeatInterval = null;
+    }
+}
 
 function processTextQueue() {
     if (textQueue.length > 0) {
@@ -322,6 +347,8 @@ function startGame(personaId) {
 
     socket.onopen = () => {
         console.log("Connected to WebSocket");
+        startHeartbeat();
+        reconnectAttempts = 0;
         const playerName = localStorage.getItem('playerName') || "Traveler";
         const questionLimit = parseInt(localStorage.getItem('questionLimit')) || 20;
         
@@ -447,10 +474,24 @@ function startGame(personaId) {
 
     socket.onclose = (event) => {
         console.log("WebSocket closed", event);
+        stopHeartbeat();
+
         if (event.code !== 1000 && event.code !== 1005) { // Normal closure
-             genieText.innerText = "Connection lost. Please refresh.";
-             controls.style.display = 'block';
-             inputArea.style.display = 'none';
+             if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+                 reconnectAttempts++;
+                 const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 10000);
+                 console.log(`Connection lost. Reconnecting in ${delay}ms... (Attempt ${reconnectAttempts})`);
+                 genieText.innerText = `Connection lost. Reconnecting...`;
+                 
+                 if (reconnectTimeout) clearTimeout(reconnectTimeout);
+                 reconnectTimeout = setTimeout(() => {
+                     startGame(currentPersonaId);
+                 }, delay);
+             } else {
+                 genieText.innerText = "Connection lost. Please refresh.";
+                 controls.style.display = 'block';
+                 inputArea.style.display = 'none';
+             }
         }
     };
 
