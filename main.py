@@ -238,15 +238,22 @@ async def websocket_endpoint(websocket: WebSocket):
                         })
                         break
                 
-                # Wait for user input
-                try:
-                    user_msg = await websocket.receive_json()
-                except WebSocketDisconnect:
+                # Wait for user input (skip over heartbeat pings)
+                while True:
+                    try:
+                        user_msg = await websocket.receive_json()
+                    except WebSocketDisconnect:
+                        user_msg = None
+                        break
+
+                    if user_msg.get("type") == "ping":
+                        await websocket.send_json({"type": "pong"})
+                        continue
+
                     break
-                
-                if user_msg.get("type") == "ping":
-                    await websocket.send_json({"type": "pong"})
-                    continue
+
+                if user_msg is None:
+                    break
                 
                 if user_msg.get("type") == "answer":
                     user_answer = user_msg.get("message", "")
