@@ -166,7 +166,7 @@ async def websocket_endpoint(websocket: WebSocket):
             print(f"[{question_count}/{question_limit}] INTRODUCTION - Starting game greeting")
             print(f"{'='*60}\n")
             await session.send_client_content(
-                turns={"role": "user", "parts": [{"text": "Start the game. Greet the user in your persona and ask if they are ready."}]},
+                turns={"role": "user", "parts": [{"text": "Start the game. Greet the user in your persona, check they have thought of a character and ask if they are ready."}]},
                 turn_complete=True
             )
             

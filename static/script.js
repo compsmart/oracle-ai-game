@@ -24,7 +24,57 @@ window.onload = () => {
     if (!savedName) {
         openSettings();
     }
+    
+    // Start rotating loading phrases
+    startLoadingPhraseRotation();
 };
+
+// Loading phrase rotation
+const loadingPhrases = [
+    "Summoning the spirits...",
+    "Gazing into the void...",
+    "Reading the cosmic energies...",
+    "Consulting the ancient ones...",
+    "Peering beyond the veil...",
+    "Channeling mystic forces...",
+    "Awakening the oracle..."
+];
+let currentPhraseIndex = 0;
+let phraseRotationInterval = null;
+
+function startLoadingPhraseRotation() {
+    // Only rotate if we're on the initial loading screen
+    if (!socket || socket.readyState !== WebSocket.OPEN) {
+        currentPhraseIndex = 0;
+        updateLoadingPhrase();
+        
+        phraseRotationInterval = setInterval(() => {
+            if (!socket || socket.readyState !== WebSocket.OPEN) {
+                updateLoadingPhrase();
+            } else {
+                stopLoadingPhraseRotation();
+            }
+        }, 10000); // Change phrase every 10 seconds
+    }
+}
+
+function updateLoadingPhrase() {
+    const phrase = loadingPhrases[currentPhraseIndex];
+    genieText.style.opacity = '0';
+    
+    setTimeout(() => {
+        genieText.innerText = phrase;
+        genieText.style.opacity = '1';
+        currentPhraseIndex = (currentPhraseIndex + 1) % loadingPhrases.length;
+    }, 300); // Wait for fade out
+}
+
+function stopLoadingPhraseRotation() {
+    if (phraseRotationInterval) {
+        clearInterval(phraseRotationInterval);
+        phraseRotationInterval = null;
+    }
+}
 
 function openSettings() {
     settingsModal.style.display = "block";
@@ -148,6 +198,7 @@ function playPcmChunk(base64Audio) {
 }
 
 async function selectPersona(personaId, imageUrl) {
+    stopLoadingPhraseRotation(); // Stop rotation when persona is selected
     if (imageUrl) {
         genieImg.src = imageUrl;
     }
