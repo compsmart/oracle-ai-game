@@ -96,13 +96,13 @@ window.onload = () => {
 
 // Loading phrase rotation
 const loadingPhrases = [
-    "Summoning the spirits...",
-    "Gazing into the void...",
-    "Reading the cosmic energies...",
-    "Consulting the ancient ones...",
-    "Peering beyond the veil...",
-    "Channeling mystic forces...",
-    "Awakening the oracle..."
+    "Bismillah, preparing the challenge...",
+    "Consulting the wise scholars...",
+    "Reading the sacred texts...",
+    "Gathering knowledge, Insha'Allah...",
+    "Seeking divine guidance...",
+    "Alhamdulillah, almost ready...",
+    "Awakening the teacher..."
 ];
 let currentPhraseIndex = 0;
 let phraseRotationInterval = null;
